@@ -28,10 +28,12 @@ INSTALLED_APPS = [
     # Project apps
     'api',
     'tasks',
+    'support',
     
     # Storage apps
     'storages',
-    'minio_storage',  # Add this line
+    'minio_storage', 
+    # Add this line
 ]
 
 MIDDLEWARE = [

@@ -26,6 +26,7 @@ urlpatterns = [
     path('', IndexView.as_view(), name='index'),
     path('api/', include('api.urls')),
     path('tasks/', include('tasks.urls')),
+    path('support/', include('support.urls')),
     
     # Swagger UI URLs
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
