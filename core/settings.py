@@ -28,6 +28,10 @@ INSTALLED_APPS = [
     # Project apps
     'api',
     'tasks',
+    
+    # Storage apps
+    'storages',
+    'minio_storage',  # Add this line
 ]
 
 MIDDLEWARE = [
@@ -116,6 +120,8 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+MEDIA_URL = 'media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
@@ -123,3 +129,36 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Add CORS configuration
 CORS_ALLOW_ALL_ORIGINS = config('CORS_ALLOW_ALL_ORIGINS', default=DEBUG, cast=bool)
 CORS_ALLOWED_ORIGINS = config('CORS_ALLOWED_ORIGINS', default='http://localhost:3000,http://127.0.0.1:3000', cast=Csv())
+
+# MinIO Configuration
+MINIO_STORAGE_ENDPOINT = config('MINIO_STORAGE_ENDPOINT', default='storages3-api.serverplus.org')
+MINIO_STORAGE_ACCESS_KEY = config('MINIO_STORAGE_ACCESS_KEY', default='')
+MINIO_STORAGE_SECRET_KEY = config('MINIO_STORAGE_SECRET_KEY', default='')
+MINIO_STORAGE_MEDIA_BUCKET_NAME = config('MINIO_STORAGE_MEDIA_BUCKET_NAME', default='')
+MINIO_STORAGE_STATIC_BUCKET_NAME = config('MINIO_STORAGE_STATIC_BUCKET_NAME', default='')
+MINIO_STORAGE_USE_HTTPS = config('MINIO_STORAGE_USE_HTTPS', default=True, cast=bool)
+MINIO_STORAGE_AUTO_CREATE_MEDIA_BUCKET = config('MINIO_STORAGE_AUTO_CREATE_MEDIA_BUCKET', default=True, cast=bool)
+MINIO_STORAGE_AUTO_CREATE_STATIC_BUCKET = config('MINIO_STORAGE_AUTO_CREATE_STATIC_BUCKET', default=True, cast=bool)
+MINIO_STORAGE_MEDIA_USE_PRESIGNED = config('MINIO_STORAGE_MEDIA_USE_PRESIGNED', default=True, cast=bool)
+MINIO_STORAGE_STATIC_USE_PRESIGNED = config('MINIO_STORAGE_STATIC_USE_PRESIGNED', default=True, cast=bool)
+
+# Optional: Separate media and static files in the same bucket with prefixes
+MINIO_STORAGE_MEDIA_URL_ENDPONT = config('MINIO_STORAGE_MEDIA_URL_ENDPONT', default=MINIO_STORAGE_ENDPOINT)
+MINIO_STORAGE_STATIC_URL_ENDPONT = config('MINIO_STORAGE_STATIC_URL_ENDPONT', default=MINIO_STORAGE_ENDPOINT)
+
+# Configure Django storage backends to use MinIO
+STORAGES = {
+    # Media file management
+    "default": {
+        "BACKEND": "minio_storage.storage.MinioMediaStorage",
+    },
+    # CSS and JS file management
+    "staticfiles": {
+        "BACKEND": "minio_storage.storage.MinioStaticStorage",
+    },
+}
+
+# Override local static and media URLs when using MinIO
+if 'minio_storage' in INSTALLED_APPS:
+    STATIC_URL = f'https://{MINIO_STORAGE_ENDPOINT}/{MINIO_STORAGE_STATIC_BUCKET_NAME}/static/'
+    MEDIA_URL = f'https://{MINIO_STORAGE_ENDPOINT}/{MINIO_STORAGE_MEDIA_BUCKET_NAME}/media/'

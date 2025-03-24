@@ -3,3 +3,4 @@
 .env.prod
 db.sqlite3
 README.md
+example.py
