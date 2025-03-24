@@ -18,6 +18,5 @@ ENV PORT=80
 # Expose port 80
 EXPOSE 80
 
-RUN python manage.py collectstatic --noinput
-# Run migrations and start server
-CMD python manage.py migrate && gunicorn core.wsgi:application --bind 0.0.0.0:$PORT
+# Move collectstatic to runtime along with migrations
+CMD python manage.py migrate && python manage.py collectstatic --noinput && gunicorn core.wsgi:application --bind 0.0.0.0:$PORT
