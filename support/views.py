@@ -3,9 +3,12 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from django.shortcuts import get_object_or_404
+import logging
 
 from .models import Conversation, Message, Attachment
 from .serializers import ConversationSerializer, MessageSerializer, AttachmentSerializer
+
+logger = logging.getLogger(__name__)
 
 class ConversationViewSet(viewsets.ModelViewSet):
     """
@@ -13,6 +16,7 @@ class ConversationViewSet(viewsets.ModelViewSet):
     """
     serializer_class = ConversationSerializer
     parser_classes = [JSONParser, MultiPartParser, FormParser]
+    http_method_names = ['get', 'post', 'put', 'patch', 'delete']
     
     def get_queryset(self):
         """
@@ -20,13 +24,13 @@ class ConversationViewSet(viewsets.ModelViewSet):
         """
         queryset = Conversation.objects.all()
         session_key = self.request.query_params.get('session_key', None)
-        status = self.request.query_params.get('status', None)
+        status_param = self.request.query_params.get('status', None)
         
         if session_key:
             queryset = queryset.filter(session_key=session_key)
             
-        if status:
-            queryset = queryset.filter(status=status)
+        if status_param:
+            queryset = queryset.filter(status=status_param)
             
         return queryset
     
@@ -61,18 +65,23 @@ class ConversationViewSet(viewsets.ModelViewSet):
         """
         Update the status of a conversation
         """
+        logger.info(f"Status update request: {request.data}")
+        
         conversation = self.get_object()
         
         status_value = request.data.get('status')
         if not status_value:
+            logger.error("No status value provided")
             return Response(
                 {'error': 'Status value is required'}, 
                 status=status.HTTP_400_BAD_REQUEST
             )
             
         # Validate status is one of the allowed choices
-        valid_statuses = [status[0] for status in Conversation.STATUS_CHOICES]
+        valid_statuses = [choice[0] for choice in Conversation.STATUS_CHOICES]
+        logger.info(f"Valid statuses: {valid_statuses}")
         if status_value not in valid_statuses:
+            logger.error(f"Invalid status: {status_value}")
             return Response(
                 {'error': f'Invalid status. Must be one of: {", ".join(valid_statuses)}'}, 
                 status=status.HTTP_400_BAD_REQUEST

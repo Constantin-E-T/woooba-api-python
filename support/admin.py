@@ -16,7 +16,6 @@ class ConversationAdmin(admin.ModelAdmin):
     list_filter = ('status', 'created_at', 'updated_at')
     inlines = [MessageInline]
 
-
 @admin.register(Message)
 class MessageAdmin(admin.ModelAdmin):
     list_display = ('id', 'conversation', 'sender_name', 'is_from_staff', 'created_at')

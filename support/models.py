@@ -6,11 +6,11 @@ class Conversation(models.Model):
     Represents a support conversation between a user and support staff.
     """
     STATUS_CHOICES = (
-        ('new', 'New'),
-        ('active', 'Active'),
-        ('waiting', 'Waiting for Response'),
+        ('open', 'Open'),
+        ('in_progress', 'In Progress'),
         ('resolved', 'Resolved'),
         ('closed', 'Closed'),
+        ('user_closed', 'User Closed'),
     )
     
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -26,7 +26,7 @@ class Conversation(models.Model):
     session_key = models.CharField(max_length=255, blank=True)
     
     # Conversation status
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='new')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='open')
     
     class Meta:
         ordering = ['-updated_at']
