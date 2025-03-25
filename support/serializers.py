@@ -22,6 +22,6 @@ class ConversationSerializer(serializers.ModelSerializer):
         model = Conversation
         fields = [
             'id', 'title', 'created_at', 'updated_at', 
-            'contact_email', 'contact_name', 'session_key', 'messages'
+            'contact_email', 'contact_name', 'session_key', 'status', 'messages'
         ]
         read_only_fields = ['id', 'created_at', 'updated_at']

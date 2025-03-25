@@ -11,10 +11,11 @@ class AttachmentInline(admin.TabularInline):
 
 @admin.register(Conversation)
 class ConversationAdmin(admin.ModelAdmin):
-    list_display = ('id', 'title', 'contact_name', 'contact_email', 'created_at', 'updated_at')
+    list_display = ('id', 'title', 'contact_name', 'contact_email', 'status', 'created_at', 'updated_at')
     search_fields = ('title', 'contact_name', 'contact_email')
-    list_filter = ('created_at', 'updated_at')
+    list_filter = ('status', 'created_at', 'updated_at')
     inlines = [MessageInline]
+
 
 @admin.register(Message)
 class MessageAdmin(admin.ModelAdmin):
