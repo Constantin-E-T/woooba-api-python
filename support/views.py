@@ -16,13 +16,17 @@ class ConversationViewSet(viewsets.ModelViewSet):
     
     def get_queryset(self):
         """
-        Filter conversations by session_key if provided
+        Filter conversations by session_key and status if provided
         """
         queryset = Conversation.objects.all()
         session_key = self.request.query_params.get('session_key', None)
+        status = self.request.query_params.get('status', None)
         
         if session_key:
             queryset = queryset.filter(session_key=session_key)
+            
+        if status:
+            queryset = queryset.filter(status=status)
             
         return queryset
     
@@ -51,6 +55,36 @@ class ConversationViewSet(viewsets.ModelViewSet):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    @action(detail=True, methods=['patch'])
+    def set_status(self, request, pk=None):
+        """
+        Update the status of a conversation
+        """
+        conversation = self.get_object()
+        
+        status_value = request.data.get('status')
+        if not status_value:
+            return Response(
+                {'error': 'Status value is required'}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+            
+        # Validate status is one of the allowed choices
+        valid_statuses = [status[0] for status in Conversation.STATUS_CHOICES]
+        if status_value not in valid_statuses:
+            return Response(
+                {'error': f'Invalid status. Must be one of: {", ".join(valid_statuses)}'}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+            
+        conversation.status = status_value
+        conversation.save()
+        
+        return Response(
+            ConversationSerializer(conversation).data,
+            status=status.HTTP_200_OK
+        )
 
 class MessageViewSet(viewsets.ModelViewSet):
     """

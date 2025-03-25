@@ -5,6 +5,14 @@ class Conversation(models.Model):
     """
     Represents a support conversation between a user and support staff.
     """
+    STATUS_CHOICES = (
+        ('new', 'New'),
+        ('active', 'Active'),
+        ('waiting', 'Waiting for Response'),
+        ('resolved', 'Resolved'),
+        ('closed', 'Closed'),
+    )
+    
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     title = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -16,6 +24,9 @@ class Conversation(models.Model):
     
     # To identify conversations from the same client
     session_key = models.CharField(max_length=255, blank=True)
+    
+    # Conversation status
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='new')
     
     class Meta:
         ordering = ['-updated_at']
